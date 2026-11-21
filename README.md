@@ -19,6 +19,10 @@
    - 以 `scripts/Switch-Display.ps1` 與 `scripts/Restore-Display.ps1` 取代大量重複 `.bat`，並將 **RTSS 鎖幀** 改為選配模組（他機未安裝也能正常運作）。
    - 寫入 `vdd_settings.xml` 與 Sunshine `apps.json` 前皆自動進行時間戳記備份，並驗證無空白 `prep-cmd` 行。
 
+6. **內建 600×800 專屬裝置封面圖示產生器**：
+   - 使用向量 SVG 裝置圖示＋微軟正黑體粗體繁中字幕自動產出 600×800（Moonlight 3:4 比例）封面圖卡，清楚標示 `DESKTOP / STEAM`、`效率版 / 效能版`、`VDD 關實體雙螢幕 / 保留實體雙螢幕`、解析度與橫直向。
+   - 新增或修改 Profile 會自動產生對應封面（亦可於介面點擊「重新生成封面圖示」或執行 `npm run covers`）。
+
 ---
 
 ## 📱 內建 Galaxy Z Fold 8 Ultra 與多裝置清單
@@ -64,6 +68,8 @@
 - **串流結束沒還原螢幕**：直接點擊網頁右上角 **「🆘 緊急還原實體雙螢幕」**，或手動執行 `local\wrappers\Restore_PC.bat`。
 - **為什麼備份重要**：每次修改 `vdd_settings.xml` 或 `apps.json` 都會先備份到 `local\backups\`。
 - **為什麼 `local/` 不納入 Git**：每台電腦的 `MonitorID`、`SerialNumber` 與安裝路徑皆不同，排除個人硬體資訊可確保公開分享時不外洩任何本機資訊。
+
+- **Moonlight Android 圖示更新後仍顯示舊圖**：Moonlight 會快取電腦的封面圖；請在手機長按 **Moonlight KATO → ⓘ → 儲存空間 → 只按「清除快取」**（請勿按清除資料，否則須重新配對），再重開 App 即可顯示全新圖示。
 
 ---
 

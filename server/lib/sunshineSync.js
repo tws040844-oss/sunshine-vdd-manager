@@ -1,13 +1,23 @@
 const fs = require('fs');
 const path = require('path');
 
+function resolveImagePath(rootDir, imagePath) {
+  const raw = String(imagePath || '').trim();
+  if (!raw) return '';
+  if (path.isAbsolute(raw)) return raw;
+  if (raw.includes('/') || raw.includes('\\')) {
+    return path.resolve(rootDir, raw);
+  }
+  return raw;
+}
+
 function buildSunshineAppEntry(rootDir, profile) {
   const entry = {
     'auto-detach': true,
     elevated: true,
     'exclude-global-prep-cmd': false,
     'exit-timeout': 5,
-    'image-path': profile.imagePath || '',
+    'image-path': resolveImagePath(rootDir, profile.imagePath),
     name: profile.name,
   };
 
@@ -99,6 +109,7 @@ function previewSunshineSync(rootDir, sunshineAppsPath, profiles) {
 }
 
 module.exports = {
+  resolveImagePath,
   buildSunshineAppEntry,
   buildAppsJsonDocument,
   validateAppsJsonDocument,

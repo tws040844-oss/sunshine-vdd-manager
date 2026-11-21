@@ -2,7 +2,19 @@ const state = {
   status: null,
   machine: null,
   profilesDoc: null,
+  coverVersion: Date.now(),
 };
+
+function coverThumbUrl(p) {
+  const raw = String(p?.imagePath || '').replace(/\\/g, '/');
+  if (raw.startsWith('assets/covers/')) {
+    return `/covers/assets/${encodeURIComponent(raw.slice('assets/covers/'.length))}?v=${state.coverVersion}`;
+  }
+  if (raw.startsWith('local/covers/')) {
+    return `/covers/local/${encodeURIComponent(raw.slice('local/covers/'.length))}?v=${state.coverVersion}`;
+  }
+  return '';
+}
 
 function esc(value) {
   return String(value ?? '')
@@ -88,18 +100,24 @@ function renderDashboard() {
   `;
 
   const enabled = profiles.filter((p) => p.enabled !== false && p.mode !== 'passthrough');
-  document.getElementById('quickSwitchGrid').innerHTML = enabled.map((p) => `
+  document.getElementById('quickSwitchGrid').innerHTML = enabled.map((p) => {
+    const thumb = coverThumbUrl(p);
+    return `
     <div class="quick-item">
-      <div>
-        <div class="quick-title">${esc(p.name)}</div>
-        <div class="quick-meta">
-          <span class="badge ${p.tier === 'efficiency' ? 'eff' : (p.tier === 'performance' ? 'perf' : '')}">${esc(p.tier)}</span>
-          <span class="badge ${p.orientation === 'portrait' ? 'port' : 'land'}">${p.width}×${p.height} (${p.orientation === 'portrait' ? '直向' : '橫向'})</span>
+      <div class="quick-head">
+        ${thumb ? `<img class="cover-thumb" src="${thumb}" alt="${esc(p.name)}">` : ''}
+        <div>
+          <div class="quick-title">${esc(p.name)}</div>
+          <div class="quick-meta">
+            <span class="badge ${p.tier === 'efficiency' ? 'eff' : (p.tier === 'performance' ? 'perf' : '')}">${esc(p.tier)}</span>
+            <span class="badge ${p.orientation === 'portrait' ? 'port' : 'land'}">${p.width}×${p.height} (${p.orientation === 'portrait' ? '直向' : '橫向'})</span>
+          </div>
         </div>
       </div>
       <button class="btn btn-primary btn-sm" onclick="triggerSwitch('${esc(p.id)}')">▶ 測試切換此解析度</button>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function tierBadge(tier) {
@@ -123,13 +141,19 @@ function renderProfilesTable() {
   document.getElementById('profilesTableBody').innerHTML = filtered.map((p) => {
     const isPort = p.height > p.width;
     const hasAutoRes = /\d{3,4}\s*[×x]\s*\d{3,4}/.test(p.name);
+    const thumb = coverThumbUrl(p);
     return `
       <tr>
         <td><input type="checkbox" ${p.enabled !== false ? 'checked' : ''} onchange="toggleProfileEnabled('${esc(p.id)}', this.checked)"></td>
         <td>
-          <strong>${esc(p.name)}</strong>
-          ${hasAutoRes ? '<span class="badge auto" title="Moonlight KATO v0.6 會自動讀取此尺寸">KATO 自動套用</span>' : ''}
-          <div class="muted">${esc(p.notes || p.id)}</div>
+          <div class="profile-name-cell">
+            ${thumb ? `<img class="cover-thumb" src="${thumb}" alt="${esc(p.name)}">` : ''}
+            <div>
+              <strong>${esc(p.name)}</strong>
+              ${hasAutoRes ? '<span class="badge auto" title="Moonlight KATO v0.6 會自動讀取此尺寸">KATO 自動套用</span>' : ''}
+              <div class="muted">${esc(p.notes || p.id)}</div>
+            </div>
+          </div>
         </td>
         <td>
           <div>${esc(p.device)}</div>
@@ -261,7 +285,10 @@ window.swapProfileOrientation = async (id) => {
     p.name = p.name.replace('展開直向', '展開橫向');
   }
   await saveProfilesToServer();
-  showToast(`已切換橫直向：${p.name}`);
+  await api('/api/covers/generate', 'POST', { profileId: p.id });
+  state.coverVersion = Date.now();
+  await refreshAll();
+  showToast(`已切換橫直向並重繪圖示：${p.name}`);
 };
 
 window.deleteProfile = async (id) => {
@@ -274,7 +301,7 @@ window.deleteProfile = async (id) => {
 window.cloneProfile = (id) => {
   const p = state.profilesDoc.profiles.find((item) => item.id === id);
   if (!p) return;
-  openProfileModal(null, { ...p, id: `${p.id}-copy`, name: `${p.name} (複製)` });
+  openProfileModal(null, { ...p, id: `${p.id}-copy`, name: `${p.name} (複製)`, imagePath: '' });
 };
 
 window.openProfileModal = (id, presetOverride = null) => {
@@ -291,7 +318,7 @@ window.openProfileModal = (id, presetOverride = null) => {
     refreshRate: 60,
     rtssFps: 60,
     cmd: '',
-    imagePath: 'desktop.png',
+    imagePath: '',
     waitAll: false,
     enabled: true,
     notes: '',
@@ -417,6 +444,22 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('filterCategory').addEventListener('change', renderProfilesTable);
   document.getElementById('filterTier').addEventListener('change', renderProfilesTable);
   document.getElementById('btnAddProfile').addEventListener('click', () => openProfileModal(null));
+  async function regenerateCoversAction() {
+    try {
+      showToast('正在產生 600×800 高解析度封面圖示...');
+      const res = await api('/api/covers/generate', 'POST', {});
+      state.coverVersion = res.generatedAt || Date.now();
+      await refreshAll();
+      if (document.getElementById('tab-sunshine').classList.contains('active')) {
+        await loadSunshinePreview();
+      }
+      showToast(`已生成 ${res.count} 張專屬封面圖示！`);
+    } catch (err) {
+      showToast(`生圖失敗：${err.message}`, true);
+    }
+  }
+  document.getElementById('btnGenerateCovers').addEventListener('click', regenerateCoversAction);
+  document.getElementById('btnSunshineGenCovers').addEventListener('click', regenerateCoversAction);
   document.getElementById('btnSaveAllProfiles').addEventListener('click', async () => {
     try {
       await saveProfilesToServer();

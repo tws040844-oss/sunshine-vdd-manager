@@ -14,6 +14,7 @@ const { writeAllCfgs } = require('./lib/cfgGenerator');
 const { writeAllWrappers, validateProfileId } = require('./lib/wrapperGenerator');
 const { inspectVddFile, patchVddXml } = require('./lib/vddSync');
 const { previewSunshineSync } = require('./lib/sunshineSync');
+const { renderCoverPng, generateAllCovers, getCoverRelativePath } = require('./lib/coverGenerator');
 const {
   getSunshineServiceStatus,
   runDetectMonitors,
@@ -107,7 +108,31 @@ function sanitizeProfile(input, existing = {}) {
   };
 }
 
+function serveCoverFile(reqPath, res) {
+  const match = reqPath.match(/^\/covers\/(assets|local)\/([a-zA-Z0-9_-]+\.png)$/);
+  if (!match) {
+    res.writeHead(404);
+    res.end('Not found');
+    return;
+  }
+  const baseDir = match[1] === 'assets'
+    ? path.join(ROOT_DIR, 'assets', 'covers')
+    : path.join(ROOT_DIR, 'local', 'covers');
+  const resolved = path.resolve(baseDir, match[2]);
+  if (!resolved.startsWith(baseDir + path.sep) || !fs.existsSync(resolved)) {
+    res.writeHead(404);
+    res.end('Not found');
+    return;
+  }
+  res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'no-store' });
+  fs.createReadStream(resolved).pipe(res);
+}
+
 function serveStaticFile(reqPath, res) {
+  if (reqPath.startsWith('/covers/')) {
+    serveCoverFile(reqPath, res);
+    return;
+  }
   const rel = reqPath === '/' ? 'index.html' : reqPath.replace(/^\/+/, '');
   const resolved = path.resolve(PUBLIC_DIR, rel);
   if (!resolved.startsWith(PUBLIC_DIR + path.sep) && resolved !== path.join(PUBLIC_DIR, 'index.html')) {
@@ -276,14 +301,39 @@ async function handleApi(req, res, pathname) {
   if (req.method === 'POST' && pathname === '/api/profiles') {
     const body = await readRequestBody(req);
     const clean = sanitizeProfile(body);
+    if (!clean.imagePath) {
+      clean.imagePath = getCoverRelativePath(ROOT_DIR, clean);
+    }
     const idx = profilesDoc.profiles.findIndex((p) => p.id === clean.id);
     if (idx >= 0) {
       profilesDoc.profiles[idx] = clean;
     } else {
       profilesDoc.profiles.push(clean);
     }
+    if (clean.imagePath.startsWith('local/covers/') || !fs.existsSync(path.resolve(ROOT_DIR, clean.imagePath))) {
+      await renderCoverPng(clean, path.resolve(ROOT_DIR, clean.imagePath));
+    }
     writeJson(paths.profilesPath, profilesDoc);
     return sendJson(res, 200, { ok: true, profile: clean, profiles: profilesDoc.profiles });
+  }
+
+  if (req.method === 'POST' && pathname === '/api/covers/generate') {
+    const body = await readRequestBody(req);
+    const targetList = body.profileId
+      ? profilesDoc.profiles.filter((p) => p.id === body.profileId)
+      : profilesDoc.profiles;
+    if (targetList.length === 0) {
+      return sendJson(res, 404, { ok: false, error: '找不到指定的 Profile' });
+    }
+    const results = await generateAllCovers(ROOT_DIR, targetList, { concurrency: 4 });
+    const byId = new Map(results.map((r) => [r.id, r.relativePath]));
+    for (const p of profilesDoc.profiles) {
+      if (byId.has(p.id) && !p.imagePath) {
+        p.imagePath = byId.get(p.id);
+      }
+    }
+    writeJson(paths.profilesPath, profilesDoc);
+    return sendJson(res, 200, { ok: true, count: results.length, generatedAt: Date.now() });
   }
 
   if (req.method === 'POST' && pathname === '/api/profiles/reset-presets') {
@@ -348,6 +398,13 @@ async function handleApi(req, res, pathname) {
 
   if (req.method === 'POST' && pathname === '/api/sunshine/sync') {
     const body = await readRequestBody(req);
+    for (const p of profilesDoc.profiles) {
+      if (p.enabled !== false && (!p.imagePath || ((p.imagePath.includes('/') || p.imagePath.includes('\\')) && !fs.existsSync(path.resolve(ROOT_DIR, p.imagePath))))) {
+        p.imagePath = p.imagePath || getCoverRelativePath(ROOT_DIR, p);
+        await renderCoverPng(p, path.resolve(ROOT_DIR, p.imagePath));
+      }
+    }
+    writeJson(paths.profilesPath, profilesDoc);
     const cfgs = writeAllCfgs(ROOT_DIR, machine, profilesDoc.profiles);
     const wrappers = writeAllWrappers(ROOT_DIR, profilesDoc.profiles);
     const preview = previewSunshineSync(ROOT_DIR, machine.tools?.sunshineAppsPath, profilesDoc.profiles);

@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server/index.js",
     "open": "node server/index.js --open",
+    "covers": "node scripts/generate-covers.js",
     "test": "node --test tests/*.test.js"
   },
   "keywords": [

@@ -31,4 +31,10 @@ test('builds all 20 organized Sunshine apps with zero blank prep-cmd or cmd fiel
   assert.equal(portEff['prep-cmd'][0].elevated, true);
   assert.match(portEff['prep-cmd'][0].do, /Start_desktop-fold8u-port-eff\.bat"$/);
   assert.match(portEff['prep-cmd'][0].undo, /Restore_PC\.bat"$/);
+
+  // Every preset entry points to an existing absolute .png cover
+  for (const app of doc.apps) {
+    assert.ok(path.isAbsolute(app['image-path']), `Expected absolute image-path for ${app.name}, got ${app['image-path']}`);
+    assert.ok(fs.existsSync(app['image-path']), `Missing cover file for ${app.name}: ${app['image-path']}`);
+  }
 });

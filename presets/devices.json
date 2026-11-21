@@ -22,7 +22,7 @@
       "refreshRate": 180,
       "rtssFps": 0,
       "cmd": "",
-      "imagePath": "desktop.png",
+      "imagePath": "assets/covers/desktop-native.png",
       "waitAll": true,
       "enabled": true,
       "notes": "不切換顯示器，直接使用目前實體桌面"
@@ -40,7 +40,7 @@
       "refreshRate": 60,
       "rtssFps": 60,
       "cmd": "",
-      "imagePath": "desktop.png",
+      "imagePath": "assets/covers/desktop-fold8u-land-eff.png",
       "waitAll": false,
       "enabled": true,
       "notes": "內螢幕展開橫向・效率版（省頻寬低延遲）"
@@ -58,7 +58,7 @@
       "refreshRate": 60,
       "rtssFps": 60,
       "cmd": "",
-      "imagePath": "desktop.png",
+      "imagePath": "assets/covers/desktop-fold8u-port-eff.png",
       "waitAll": false,
       "enabled": true,
       "notes": "內螢幕展開直向・效率版（VDD 原生直向輸出）"
@@ -76,7 +76,7 @@
       "refreshRate": 60,
       "rtssFps": 60,
       "cmd": "",
-      "imagePath": "desktop.png",
+      "imagePath": "assets/covers/desktop-fold8u-169-eff.png",
       "waitAll": false,
       "enabled": true,
       "notes": "內螢幕精簡 16:9・效率版"
@@ -94,7 +94,7 @@
       "refreshRate": 60,
       "rtssFps": 60,
       "cmd": "",
-      "imagePath": "desktop.png",
+      "imagePath": "assets/covers/desktop-fold8u-land-perf.png",
       "waitAll": false,
       "enabled": true,
       "notes": "內螢幕展開橫向・效能版（點對點滿解析度）"
@@ -112,7 +112,7 @@
       "refreshRate": 60,
       "rtssFps": 60,
       "cmd": "",
-      "imagePath": "desktop.png",
+      "imagePath": "assets/covers/desktop-fold8u-port-perf.png",
       "waitAll": false,
       "enabled": true,
       "notes": "內螢幕展開直向・效能版（VDD 原生直向輸出）"
@@ -130,7 +130,7 @@
       "refreshRate": 60,
       "rtssFps": 60,
       "cmd": "",
-      "imagePath": "desktop.png",
+      "imagePath": "assets/covers/desktop-fold8u-169-perf.png",
       "waitAll": false,
       "enabled": true,
       "notes": "內螢幕 16:9・效能版（高清晰度）"
@@ -148,7 +148,7 @@
       "refreshRate": 60,
       "rtssFps": 60,
       "cmd": "",
-      "imagePath": "desktop.png",
+      "imagePath": "assets/covers/desktop-fold8u-cover.png",
       "waitAll": false,
       "enabled": true,
       "notes": "外螢幕閉合橫向"
@@ -166,7 +166,7 @@
       "refreshRate": 60,
       "rtssFps": 60,
       "cmd": "steam://open/bigpicture",
-      "imagePath": "",
+      "imagePath": "assets/covers/steam-fold8u-land-eff.png",
       "waitAll": false,
       "enabled": true,
       "notes": "Steam Big Picture 展開橫向・效率版"
@@ -184,7 +184,7 @@
       "refreshRate": 60,
       "rtssFps": 60,
       "cmd": "steam://open/bigpicture",
-      "imagePath": "",
+      "imagePath": "assets/covers/steam-fold8u-port-eff.png",
       "waitAll": false,
       "enabled": true,
       "notes": "Steam Big Picture 展開直向・效率版"
@@ -202,7 +202,7 @@
       "refreshRate": 60,
       "rtssFps": 60,
       "cmd": "steam://open/bigpicture",
-      "imagePath": "",
+      "imagePath": "assets/covers/steam-fold8u-169-eff.png",
       "waitAll": false,
       "enabled": true,
       "notes": "Steam Big Picture 16:9・效率版"
@@ -220,7 +220,7 @@
       "refreshRate": 60,
       "rtssFps": 60,
       "cmd": "steam://open/bigpicture",
-      "imagePath": "",
+      "imagePath": "assets/covers/steam-fold8u-land-perf.png",
       "waitAll": false,
       "enabled": true,
       "notes": "Steam Big Picture 展開橫向・效能版"
@@ -238,7 +238,7 @@
       "refreshRate": 60,
       "rtssFps": 60,
       "cmd": "steam://open/bigpicture",
-      "imagePath": "",
+      "imagePath": "assets/covers/steam-fold8u-port-perf.png",
       "waitAll": false,
       "enabled": true,
       "notes": "Steam Big Picture 展開直向・效能版"
@@ -256,7 +256,7 @@
       "refreshRate": 60,
       "rtssFps": 60,
       "cmd": "steam://open/bigpicture",
-      "imagePath": "",
+      "imagePath": "assets/covers/steam-fold8u-169-perf.png",
       "waitAll": false,
       "enabled": true,
       "notes": "Steam Big Picture 16:9・效能版"
@@ -274,7 +274,7 @@
       "refreshRate": 60,
       "rtssFps": 60,
       "cmd": "steam://open/bigpicture",
-      "imagePath": "",
+      "imagePath": "assets/covers/steam-fold8u-cover.png",
       "waitAll": false,
       "enabled": true,
       "notes": "Steam Big Picture 外螢幕閉合"
@@ -292,7 +292,7 @@
       "refreshRate": 60,
       "rtssFps": 60,
       "cmd": "steam://open/bigpicture",
-      "imagePath": "",
+      "imagePath": "assets/covers/steam-ipad.png",
       "waitAll": false,
       "enabled": true,
       "notes": "既有裝置：iPad"
@@ -310,7 +310,7 @@
       "refreshRate": 60,
       "rtssFps": 60,
       "cmd": "steam://open/bigpicture",
-      "imagePath": "",
+      "imagePath": "assets/covers/steam-iphone15pro-full.png",
       "waitAll": false,
       "enabled": true,
       "notes": "既有裝置：iPhone 15 Pro 滿版"
@@ -328,7 +328,7 @@
       "refreshRate": 60,
       "rtssFps": 60,
       "cmd": "steam://open/bigpicture",
-      "imagePath": "",
+      "imagePath": "assets/covers/steam-iphone15pro-safe.png",
       "waitAll": false,
       "enabled": true,
       "notes": "既有裝置：iPhone 15 Pro 避開動態島"
@@ -346,7 +346,7 @@
       "refreshRate": 180,
       "rtssFps": 60,
       "cmd": "steam://open/bigpicture",
-      "imagePath": "",
+      "imagePath": "assets/covers/steam-2k-physical.png",
       "waitAll": true,
       "enabled": true,
       "notes": "使用實體主螢幕，關閉副螢幕與虛擬螢幕"
@@ -364,7 +364,7 @@
       "refreshRate": 60,
       "rtssFps": 60,
       "cmd": "steam://open/bigpicture",
-      "imagePath": "",
+      "imagePath": "assets/covers/steam-4k-tv.png",
       "waitAll": true,
       "enabled": true,
       "notes": "既有裝置：4K TV"
