@@ -1,0 +1,22 @@
+{
+  "name": "sunshine-vdd-manager",
+  "version": "1.0.0",
+  "description": "Portable Windows Sunshine + Virtual Display Driver (MTT VDD) + MultiMonitorTool profile manager and Web UI",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "open": "node server/index.js --open",
+    "test": "node --test tests/*.test.js"
+  },
+  "keywords": [
+    "sunshine",
+    "moonlight",
+    "virtual-display-driver",
+    "multimonitortool",
+    "fold"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

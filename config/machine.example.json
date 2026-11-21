@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "tools": {
+    "multiMonitorToolPath": "tools\\MultiMonitorTool.exe",
+    "vddSettingsPath": "C:\\VirtualDisplayDriver\\vdd_settings.xml",
+    "sunshineAppsPath": "C:\\Program Files\\Sunshine\\config\\apps.json",
+    "vddPnpPattern": "*Virtual Display*"
+  },
+  "rtss": {
+    "enabled": false,
+    "profilePath": "",
+    "shortcutPath": "",
+    "restoreFps": 120
+  },
+  "monitors": {
+    "physical": [
+      {
+        "id": "primary-monitor",
+        "label": "主實體螢幕 (Primary)",
+        "name": "\\\\.\\DISPLAY1",
+        "monitorId": "MONITOR\\EXAMPLE1\\{4d36e96e-e325-11ce-bfc1-08002be10318}\\0001",
+        "serialNumber": "",
+        "isPrimary": true,
+        "bitsPerPixel": 32,
+        "width": 2560,
+        "height": 1440,
+        "displayFlags": 0,
+        "displayFrequency": 180,
+        "displayOrientation": 0,
+        "positionX": 0,
+        "positionY": 0
+      },
+      {
+        "id": "secondary-monitor",
+        "label": "副實體螢幕 (Secondary)",
+        "name": "\\\\.\\DISPLAY2",
+        "monitorId": "MONITOR\\EXAMPLE2\\{4d36e96e-e325-11ce-bfc1-08002be10318}\\0002",
+        "serialNumber": "",
+        "isPrimary": false,
+        "bitsPerPixel": 32,
+        "width": 1920,
+        "height": 1080,
+        "displayFlags": 0,
+        "displayFrequency": 120,
+        "displayOrientation": 0,
+        "positionX": -1920,
+        "positionY": 0
+      }
+    ],
+    "virtual": {
+      "label": "Virtual Display Driver (MTT VDD)",
+      "name": "\\\\.\\DISPLAY6",
+      "monitorId": "MONITOR\\MTT1337\\{4d36e96e-e325-11ce-bfc1-08002be10318}\\0002",
+      "serialNumber": "",
+      "displayFlags": 0,
+      "displayOrientation": 0,
+      "positionX": 0,
+      "positionY": 0
+    }
+  }
+}

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sunshine 虛擬螢幕統一管理中心</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-badge">VDD</div>
+      <div>
+        <h1>Sunshine 虛擬螢幕統一管理中心</h1>
+        <p class="subtitle">MTT Virtual Display × MultiMonitorTool × Sunshine × Moonlight KATO</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div id="headerPills" class="status-pills"></div>
+      <button id="btnEmergencyRestore" class="btn btn-danger" title="立即喚醒所有實體螢幕、還原 PC.cfg 並停用虛擬螢幕">
+        🆘 緊急還原實體雙螢幕
+      </button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="dashboard">📊 總覽與快速切換</button>
+    <button class="tab" data-tab="profiles">📱 裝置 Profile 管理</button>
+    <button class="tab" data-tab="machine">🖥️ 本機硬體精靈</button>
+    <button class="tab" data-tab="vdd">🧩 VDD 解析度同步</button>
+    <button class="tab" data-tab="sunshine">☀️ Sunshine 同步中心</button>
+  </nav>
+
+  <main class="container">
+    <div id="toastArea" class="toast-area"></div>
+
+    <!-- Tab 1: Dashboard -->
+    <section id="tab-dashboard" class="tab-panel active">
+      <div class="grid-4" id="summaryCards"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>三步驟快速部署 / 同步</h2>
+            <p class="muted">換到新電腦或新增裝置後，依序確認即可安全套用（自動備份現有設定檔）</p>
+          </div>
+          <div class="btn-row">
+            <button id="btnDashRefresh" class="btn btn-secondary">🔄 重新整理狀態</button>
+            <button id="btnDashGenerate" class="btn btn-primary">⚙️ 重新生成全部 .cfg 與 .bat</button>
+          </div>
+        </div>
+        <div class="steps-row">
+          <div class="step-box">
+            <span class="step-num">1</span>
+            <div>
+              <strong>偵測或匯入本機螢幕</strong>
+              <p>自動辨識主副實體螢幕 MonitorID 與 VDD，或從現有 PC.cfg 直接匯入。</p>
+            </div>
+          </div>
+          <div class="step-box">
+            <span class="step-num">2</span>
+            <div>
+              <strong>補齊 VDD 解析度清單</strong>
+              <p>檢查展開橫向 / 直向 / 16:9 解析度是否都已寫入 vdd_settings.xml。</p>
+            </div>
+          </div>
+          <div class="step-box">
+            <span class="step-num">3</span>
+            <div>
+              <strong>同步 Sunshine 清單</strong>
+              <p>生成標準 ASCII CRLF .cfg 與呼叫腳本，備份並更新 apps.json。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>本機快速測試切換</h2>
+            <p class="muted">直接觸發統一切換引擎（會要求管理員 UAC 權限控制 PnP 虛擬顯示卡）；測完請按右上角還原。</p>
+          </div>
+        </div>
+        <div id="quickSwitchGrid" class="quick-grid"></div>
+      </div>
+    </section>
+
+    <!-- Tab 2: Profiles -->
+    <section id="tab-profiles" class="tab-panel">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>串流裝置 Profile 清單</h2>
+            <p class="muted">名稱內含解析度（如 <code>1968×2184</code>）時，搭配 Moonlight KATO v0.6 可自動套用尺寸與橫直向。</p>
+          </div>
+          <div class="btn-row">
+            <button id="btnAddProfile" class="btn btn-primary">➕ 新增 Profile</button>
+            <button id="btnResetPresets" class="btn btn-secondary">↩️ 還原預設範本</button>
+          </div>
+        </div>
+        <div class="toolbar">
+          <div class="filter-group">
+            <label>分類：
+              <select id="filterCategory">
+                <option value="ALL">全部</option>
+                <option value="Desktop">Desktop（純桌面）</option>
+                <option value="Steam">Steam Big Picture</option>
+              </select>
+            </label>
+            <label>分級：
+              <select id="filterTier">
+                <option value="ALL">全部</option>
+                <option value="efficiency">效率版</option>
+                <option value="performance">效能版</option>
+                <option value="standard">標準裝置</option>
+                <option value="native">原生</option>
+              </select>
+            </label>
+          </div>
+          <button id="btnSaveAllProfiles" class="btn btn-success">💾 儲存 Profile 變更</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>啟用</th>
+                <th>Sunshine 顯示名稱</th>
+                <th>裝置 / 分級</th>
+                <th>解析度 &amp; 方向</th>
+                <th>模式</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="profilesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: Machine Wizard -->
+    <section id="tab-machine" class="tab-panel">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>他機移植 / 硬體偵測精靈</h2>
+            <p class="muted">所有個人 MonitorID、序號與本機路徑只保存在 <code>local/machine.json</code>（已被 Git 忽略，不會外流）。</p>
+          </div>
+          <div class="btn-row">
+            <button id="btnDetectMonitors" class="btn btn-primary">🔍 自動偵測本機螢幕</button>
+          </div>
+        </div>
+        <div class="import-row">
+          <input id="inputPcCfgPath" type="text" placeholder="輸入既有 PC.cfg 路徑（例如 C:\Path\To\PC.cfg）">
+          <button id="btnImportPcCfg" class="btn btn-secondary">📥 從 PC.cfg 匯入硬體 ID</button>
+        </div>
+        <div id="detectPreviewArea" class="detect-box hidden"></div>
+      </div>
+
+      <div class="card">
+        <h2>工具與檔案路徑設定</h2>
+        <div class="form-grid">
+          <label>MultiMonitorTool.exe 路徑
+            <input id="toolMmtPath" type="text">
+          </label>
+          <label>VDD 設定檔 (vdd_settings.xml)
+            <input id="toolVddPath" type="text">
+          </label>
+          <label>Sunshine apps.json 路徑
+            <input id="toolSunshinePath" type="text">
+          </label>
+          <label>VDD PnP 裝置名稱比對樣式
+            <input id="toolVddPattern" type="text">
+          </label>
+        </div>
+
+        <h3 class="section-title">RTSS 鎖幀整合（選配：他機未安裝可直接關閉）</h3>
+        <div class="form-grid">
+          <label class="checkbox-inline">
+            <input id="rtssEnabled" type="checkbox"> 啟用 RTSS 鎖幀控制
+          </label>
+          <label>離開串流後恢復 FPS
+            <input id="rtssRestoreFps" type="number" min="30" max="360">
+          </label>
+          <label>RTSS Profiles\Global 路徑
+            <input id="rtssProfilePath" type="text">
+          </label>
+          <label>RTSS 啟動捷徑 (.lnk 或 .exe)
+            <input id="rtssShortcutPath" type="text">
+          </label>
+        </div>
+
+        <h3 class="section-title">螢幕硬體對應表（自動寫入每份 .cfg）</h3>
+        <div id="monitorsEditor"></div>
+
+        <div class="card-footer">
+          <button id="btnSaveMachine" class="btn btn-success">💾 儲存本機硬體設定並重建 .cfg / .bat</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 4: VDD Sync -->
+    <section id="tab-vdd" class="tab-panel">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>MTT Virtual Display Driver 解析度比對</h2>
+            <p class="muted">檢查 Profile 內所有 <code>vdd</code> 模式解析度是否都已存在於 <code>vdd_settings.xml</code>。</p>
+          </div>
+          <div class="btn-row">
+            <button id="btnCheckVdd" class="btn btn-secondary">🔍 重新掃描 XML</button>
+            <button id="btnSyncVdd" class="btn btn-primary">⚡ 補齊缺少解析度並重載 VDD</button>
+          </div>
+        </div>
+        <div id="vddCheckResult"></div>
+      </div>
+    </section>
+
+    <!-- Tab 5: Sunshine Sync -->
+    <section id="tab-sunshine" class="tab-panel">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>Sunshine 同步中心</h2>
+            <p class="muted">自動產生純 ASCII CRLF <code>.cfg</code> 與薄包裝 <code>.bat</code>，驗證無空白指令行後備份並覆蓋寫入 <code>apps.json</code>。</p>
+          </div>
+          <div class="btn-row">
+            <button id="btnPreviewSunshine" class="btn btn-secondary">👁️ 重新預覽差異</button>
+            <button id="btnSyncSunshine" class="btn btn-success">🚀 同步至 Sunshine 並重啟服務</button>
+          </div>
+        </div>
+        <div id="sunshinePreviewArea"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Profile Modal -->
+  <div id="profileModal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modalTitle">編輯 Profile</h3>
+        <button id="btnCloseModal" class="btn-icon">✕</button>
+      </div>
+      <form id="profileForm" class="modal-body">
+        <input type="hidden" id="pfOriginalId">
+        <div class="form-grid">
+          <label>Profile ID（英數與連字號）
+            <input id="pfId" type="text" required pattern="[a-zA-Z0-9_-]+">
+          </label>
+          <label>Sunshine 顯示名稱
+            <input id="pfName" type="text" required>
+          </label>
+          <label>分類
+            <select id="pfCategory">
+              <option value="Desktop">Desktop</option>
+              <option value="Steam">Steam</option>
+            </select>
+          </label>
+          <label>裝置名稱
+            <input id="pfDevice" type="text" value="Galaxy Z Fold 8 Ultra">
+          </label>
+          <label>分級
+            <select id="pfTier">
+              <option value="efficiency">efficiency（效率版）</option>
+              <option value="performance">performance（效能版）</option>
+              <option value="standard">standard（標準）</option>
+              <option value="native">native（原生）</option>
+            </select>
+          </label>
+          <label>切換模式
+            <select id="pfMode">
+              <option value="vdd">vdd（關閉實體螢幕，啟用虛擬螢幕）</option>
+              <option value="physical-primary">physical-primary（只留主實體螢幕）</option>
+              <option value="passthrough">passthrough（不切換螢幕）</option>
+            </select>
+          </label>
+          <label>寬度 (Width)
+            <input id="pfWidth" type="number" min="256" max="8192" step="2" required>
+          </label>
+          <label>高度 (Height)
+            <input id="pfHeight" type="number" min="256" max="8192" step="2" required>
+          </label>
+          <label>更新率 (Hz)
+            <input id="pfHz" type="number" min="24" max="244" value="60" required>
+          </label>
+          <label>RTSS 鎖幀 FPS（0 表示不修改）
+            <input id="pfRtssFps" type="number" min="0" max="360" value="60">
+          </label>
+          <label>啟動指令 cmd（Desktop 留空）
+            <input id="pfCmd" type="text" placeholder="例如 steam://open/bigpicture">
+          </label>
+          <label>圖示 image-path
+            <input id="pfImagePath" type="text" placeholder="例如 desktop.png">
+          </label>
+        </div>
+        <div class="form-checks">
+          <label class="checkbox-inline"><input id="pfWaitAll" type="checkbox"> wait-all</label>
+          <label class="checkbox-inline"><input id="pfEnabled" type="checkbox" checked> 啟用並同步至 Sunshine</label>
+        </div>
+        <label>備註
+          <input id="pfNotes" type="text">
+        </label>
+        <div class="modal-footer">
+          <button type="button" id="btnSwapDimsModal" class="btn btn-secondary">🔄 互換寬高 (橫/直)</button>
+          <button type="submit" class="btn btn-primary">確定套用</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

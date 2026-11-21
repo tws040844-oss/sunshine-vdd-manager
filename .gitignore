@@ -1,0 +1,16 @@
+# 本機硬體與環境設定（含 MonitorID、SerialNumber、本機路徑與備份）
+local/
+
+# 第三方執行檔請自行下載放置於 tools/
+tools/*.exe
+tools/*.chm
+tools/*.zip
+
+# Node / 系統暫存與日誌
+node_modules/
+*.log
+*.bak
+*.bak.*
+.env
+.DS_Store
+Thumbs.db
